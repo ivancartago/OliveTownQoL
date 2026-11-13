@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Build: dotnet build -c Release -p:GamePath="C:\path\to\STORY OF SEASONS Pioneers of Olive Town"
+       Run the game once with BepInEx installed first so BepInEx\interop exists. -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>OliveTownQoL</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>CS8632;CS0436</NoWarn>
+    <GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\STORY OF SEASONS Pioneers of Olive Town</GamePath>
+    <Interop>$(GamePath)\BepInEx\interop</Interop>
+    <Core>$(GamePath)\BepInEx\core</Core>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="$(Interop)\Assembly-CSharp.dll" Private="false" />
+    <Reference Include="$(Interop)\Assembly-CSharp-firstpass.dll" Private="false" />
+    <Reference Include="$(Interop)\Il2Cppmscorlib.dll" Private="false" />
+    <Reference Include="$(Interop)\Il2CppSystem.dll" Private="false" />
+    <Reference Include="$(Interop)\Il2CppSystem.Core.dll" Private="false" />
+    <Reference Include="$(Interop)\UnityEngine.dll" Private="false" />
+    <Reference Include="$(Interop)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="$(Interop)\UnityEngine.InputLegacyModule.dll" Private="false" />
+    <Reference Include="$(Interop)\UnityEngine.UI.dll" Private="false" />
+    <Reference Include="$(Interop)\UnityEngine.UIModule.dll" Private="false" />
+    <Reference Include="$(Interop)\UnityEngine.TextRenderingModule.dll" Private="false" />
+    <Reference Include="$(Interop)\Unity.TextMeshPro.dll" Private="false" />
+    <Reference Include="$(Core)\Il2CppInterop.Runtime.dll" Private="false" />
+    <Reference Include="$(Core)\Il2CppInterop.Common.dll" Private="false" />
+    <Reference Include="$(Core)\BepInEx.Core.dll" Private="false" />
+    <Reference Include="$(Core)\BepInEx.Unity.IL2CPP.dll" Private="false" />
+    <Reference Include="$(Core)\BepInEx.Unity.Common.dll" Private="false" />
+    <Reference Include="$(Core)\0Harmony.dll" Private="false" />
+  </ItemGroup>
+</Project>

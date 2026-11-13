@@ -1,0 +1,8 @@
+bin/
+obj/
+*.user
+.vs/
+*.wav
+*.flac
+*.mp3
+*.ogg
