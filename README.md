@@ -6,7 +6,7 @@ A quality-of-life mod for **STORY OF SEASONS: Pioneers of Olive Town** (Steam / 
 - **Universal maker**: every maker can run every recipe, so one machine replaces a farm full of them. The Lumber Maker is renamed *Universal Maker* and tinted teal
 - **Fast makers**: jobs finish almost instantly and take batches of up to 99
 - **Bigger storage**: boxes and fridges get 4 pages of 24 slots, stacks go up to 9,999, and one button sorts and merges everything
-- **Your own music**: season songs outdoors, a town song, an evening song at night, and silence in bad weather, at home and in the mines. Festivals and cutscenes keep the game's music
+- **Your own music (optional)**: season songs outdoors, a town song, an evening song at night, and silence in bad weather, at home and in the mines. Festivals and cutscenes keep the game's music. Without songs, you hear the normal game music
 - **Controller support** for Xbox-style pads, with a small on-screen message confirming each action
 
 ## Install
@@ -15,7 +15,8 @@ A quality-of-life mod for **STORY OF SEASONS: Pioneers of Olive Town** (Steam / 
 2. Extract it into the game folder, next to `STORY OF SEASONS Pioneers of Olive Town.exe`.
 3. Start the game once and wait for the title screen. The first start takes a minute or two while BepInEx sets itself up. Then close the game.
 4. Download `OliveTownQoL.zip` from [Releases](../../releases) and extract it into the game folder. The DLL should end up at `BepInEx\plugins\OliveTownQoL\OliveTownQoL.dll`.
-5. Start the game. A message at the top of the screen says **"Olive Town mods active"**.
+5. Optional: add your own songs (see [Your own music](#your-own-music)).
+6. Start the game. A message at the top of the screen says **"Olive Town mods active"**.
 
 Settings are in `BepInEx\config\ivan.olivetown.qol.cfg`. Edit the file in Notepad, then press **F8** in-game to reload it.
 
@@ -62,7 +63,12 @@ The game has Unity's audio turned off, so the mod plays your songs through Windo
 
 \*Night starts when the game's own night music would.
 
-No music is included. Put your own **16-bit 44.1 kHz stereo WAV** files in `BepInEx\plugins\OliveTownQoL\Music\` named `Spring.wav`, `Summer.wav`, `Fall.wav`, `Winter.wav`, `Town.wav` and `Evening.wav`. You can also use other names and set them under `[MyMusic]`. Any song that's missing simply plays as silence.
+No music is included, and the mod works fine without it. If a song file is missing, that spot plays the game's normal music. With no songs at all, the music sounds exactly like the unmodded game, including on rainy days, at home and in the mines. You can also add only some songs, for example just `Town.wav`.
+
+To use your own songs, put **16-bit 44.1 kHz stereo WAV** files in `BepInEx\plugins\OliveTownQoL\Music\` named `Spring.wav`, `Summer.wav`, `Fall.wav`, `Winter.wav`, `Town.wav` and `Evening.wav`. You can also use other names and set them under `[MyMusic]`.
+
+The songs I use come from the *Harvest Moon: Back to Nature* (PS1) soundtrack: <https://downloads.khinsider.com/game-soundtracks/album/harvest-moon-back-to-nature-ps1-gamerip-1999>
+(Spring, Summer, Fall, Winter, Town and Evening.)
 
 To convert a song with ffmpeg:
 

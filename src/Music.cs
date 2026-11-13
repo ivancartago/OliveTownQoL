@@ -169,7 +169,7 @@ namespace OliveTownQoL
 
         internal static void Bind(ConfigFile c)
         {
-            Enabled = c.Bind("MyMusic", "Enabled", true, "Play your own songs: season songs outdoors, Town song in town, Evening song at night outdoors; silence in bad weather, at home and in mines. Festivals, cutscenes, shops and DLC areas keep the game's music.");
+            Enabled = c.Bind("MyMusic", "Enabled", true, "Play your own songs: season songs outdoors, Town song in town, Evening song at night outdoors; silence in bad weather, at home and in mines. Festivals, cutscenes, shops and DLC areas keep the game's music. Any song file that is missing plays the game's own music instead; with no songs at all, everything sounds like the normal game.");
             Volume = c.Bind("MyMusic", "Volume", 0.8f, "Volume of your songs (0-1). The game's own music volume setting is applied on top.");
             Spring = c.Bind("MyMusic", "Spring", "Spring.wav", "File in BepInEx/plugins/OliveTownQoL/Music");
             Summer = c.Bind("MyMusic", "Summer", "Summer.wav", "");
@@ -231,17 +231,33 @@ namespace OliveTownQoL
             catch { return Spring.Value; }
         }
 
+        // Marker meaning "let the game play its own music here".
+        const string GameMusic = "<game>";
+
+        static float _songsCheckedAt = -100f;
+        static bool _anySongs;
+        static bool AnySongs()
+        {
+            if (Time.unscaledTime - _songsCheckedAt > 10f)
+            {
+                _songsCheckedAt = Time.unscaledTime;
+                _anySongs = false;
+                foreach (var n in Names) { var p = P(n); if (p != null && File.Exists(p)) { _anySongs = true; break; } }
+            }
+            return _anySongs;
+        }
+
+        // A song that isn't there falls back to the game's own music.
+        static string Song(string file) { var p = P(file); return p != null && File.Exists(p) ? p : GameMusic; }
+
         static string Desired()
         {
-            switch (_ctx)
-            {
-                case Ctx.Game: return null;
-                case Ctx.Home: case Ctx.Mine: return _override >= 0 ? P(Names[_override]) : null;
-            }
-            if (_override >= 0) return P(Names[_override]);
+            if (_ctx == Ctx.Game || !AnySongs()) return GameMusic; // no songs installed: game music everywhere
+            if (_ctx == Ctx.Home || _ctx == Ctx.Mine) return _override >= 0 ? Song(Names[_override]) : null;
+            if (_override >= 0) return Song(Names[_override]);
             if (BadWeather()) return null;
-            if (IsNight()) return P(Evening.Value);
-            return P(_ctx == Ctx.TownArea ? Town.Value : Season());
+            if (IsNight()) return Song(Evening.Value);
+            return Song(_ctx == Ctx.TownArea ? Town.Value : Season());
         }
 
         internal static void Tick()
@@ -263,9 +279,20 @@ namespace OliveTownQoL
             }
             catch { }
             _player.Volume = v;
-            var t = Enabled.Value ? Desired() : null;
-            if (t != _lastLogged) { _lastLogged = t; Plugin.L.LogInfo($"My music: {(t == null ? (_ctx == Ctx.Game ? "game music" : "silence") : Path.GetFileName(t))} [{_ctx}]"); }
-            _player.Target = t;
+            var t = Enabled.Value ? Desired() : GameMusic;
+            if (t != _lastLogged)
+            {
+                bool wasGame = _lastLogged == GameMusic;
+                _lastLogged = t;
+                Plugin.L.LogInfo($"My music: {(t == GameMusic ? "game music" : t == null ? "silence" : Path.GetFileName(t))} [{_ctx}]");
+                // Hand over between the game's music and ours when the situation changes (night, weather, F9...).
+                if (_ctx != Ctx.Game && _ctl != null)
+                {
+                    if (t == GameMusic && !wasGame) RestartGameMusic();
+                    else if (t != GameMusic && wasGame) StopGame(_ctl);
+                }
+            }
+            _player.Target = t == GameMusic ? null : t;
         }
 
         internal static void Cycle()
@@ -275,6 +302,15 @@ namespace OliveTownQoL
             if (_override >= Labels.Length) _override = -1;
             _nextEval = 0;
             Toast.Show(_override < 0 ? "Music: automatic" : $"Music: {Labels[_override]}  (F9 again for next)", 3f);
+        }
+
+        static bool _restarting, _inPlay;
+        static void RestartGameMusic()
+        {
+            _restarting = true;
+            try { if (SoundManager.IsInstance && FieldManager.IsInstance) SoundManager.Instance.PlayFieldBgm(FieldManager.Instance.CurrentFieldId); }
+            catch { }
+            finally { _restarting = false; }
         }
 
         internal static void StopGame(SoundBgmController ctl)
@@ -292,20 +328,26 @@ namespace OliveTownQoL
                 _ctl = __instance;
                 try
                 {
-                    if (!Classify(bgmData)) return true;
+                    _inPlay = true;
+                    if (_restarting || !Classify(bgmData)) return true;
                     _nextEval = 0;
+                    var want = Enabled.Value ? Desired() : GameMusic;
+                    _lastLogged = want == GameMusic ? GameMusic : "<pending>";
+                    if (want == GameMusic) return true; // song missing: keep the game's track
                     StopGame(__instance);
                     return false;
                 }
                 catch (Exception e) { Plugin.L.LogError(e); return true; }
             }
+
+            static void Postfix() => _inPlay = false;
         }
 
         [HarmonyPatch(typeof(SoundBgmController), nameof(SoundBgmController.StopBgm))]
         static class StopPatch
         {
             // The game silencing music (e.g. a cutscene) silences ours too.
-            static void Postfix() { if (!_selfStop) { _ctx = Ctx.Game; _nextEval = 0; } }
+            static void Postfix() { if (!_selfStop && !_inPlay && !_restarting) { _ctx = Ctx.Game; _nextEval = 0; } }
         }
 
         [HarmonyPatch(typeof(SoundBgmController), nameof(SoundBgmController.PauseBgm))]

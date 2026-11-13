@@ -19,7 +19,7 @@ namespace OliveTownQoL
     public class Plugin : BasePlugin
     {
         public const string GUID = "ivan.olivetown.qol";
-        public const string VERSION = "2.1.0";
+        public const string VERSION = "2.1.1";
 
         internal static ManualLogSource L;
         internal static ConfigFile Cfg;
