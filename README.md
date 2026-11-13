@@ -98,5 +98,9 @@ The output is `src\bin\Release\net6.0\OliveTownQoL.dll`.
 Delete `BepInEx\plugins\OliveTownQoL`. To turn off all mods at once, delete `winhttp.dll` from the game folder.
 
 ## Credits
+- [Otakubuns' SoSPoOT-Mods](https://github.com/Otakubuns/SoSPoOT-Mods): his Time Changer and Craft Limit mods inspired the clock and maker features here.
+- [SoS Portrait Mod](https://github.com/Otakubuns/SoSPoOT-Mods/tree/master/SoS%20Portrait%20Mod) by Otakubuns adds character portraits to dialogue. I play with it alongside this mod; get it from his releases.
+- The two portraits his mod didn't have yet (Lovett and Spirit of the Spring) came from the [Ranch Story Wiki](https://ranchstory.miraheze.org/wiki/Category:Story_of_Seasons:_Pioneers_of_Olive_Town). To add them, crop them to 350×320 and save them as `Lovett.png` and `Spirit of the Spring.png` in the Portrait Mod's `assets` folder.
+- Music source for my own setup: the [Harvest Moon: Back to Nature (PS1) soundtrack](https://downloads.khinsider.com/game-soundtracks/album/harvest-moon-back-to-nature-ps1-gamerip-1999)
 - [BepInEx](https://github.com/BepInEx/BepInEx), [HarmonyX](https://github.com/BepInEx/HarmonyX) and [Il2CppInterop](https://github.com/BepInEx/Il2CppInterop)
 - STORY OF SEASONS: Pioneers of Olive Town © Marvelous Inc. This is an unofficial fan mod, and no game files are included.
