@@ -65,16 +65,38 @@ The game has Unity's audio turned off, so the mod plays your songs through Windo
 
 No music is included, and the mod works fine without it. If a song file is missing, that spot plays the game's normal music. With no songs at all, the music sounds exactly like the unmodded game, including on rainy days, at home and in the mines. You can also add only some songs, for example just `Town.wav`.
 
-To use your own songs, put **16-bit 44.1 kHz stereo WAV** files in `BepInEx\plugins\OliveTownQoL\Music\` named `Spring.wav`, `Summer.wav`, `Fall.wav`, `Winter.wav`, `Town.wav` and `Evening.wav`. You can also use other names and set them under `[MyMusic]`.
+#### Adding your music, step by step
 
-The songs I use come from the *Harvest Moon: Back to Nature* (PS1) soundtrack: <https://downloads.khinsider.com/game-soundtracks/album/harvest-moon-back-to-nature-ps1-gamerip-1999>
-(Spring, Summer, Fall, Winter, Town and Evening.)
+**1. Get the songs.** You can use any songs you like. The ones I use come from the *Harvest Moon: Back to Nature* (PS1) soundtrack: <https://downloads.khinsider.com/game-soundtracks/album/harvest-moon-back-to-nature-ps1-gamerip-1999>
 
-To convert a song with ffmpeg:
+On that page, click the download icon in a track's **MP3** or **FLAC** column; either one works. These are the tracks I use:
+
+| Track on the page | Save it as |
+|---|---|
+| 2. Spring | `Spring.wav` |
+| 3. Summer | `Summer.wav` |
+| 4. Fall | `Fall.wav` |
+| 5. Winter | `Winter.wav` |
+| 19. Town | `Town.wav` |
+| 96. Evening | `Evening.wav` |
+
+**2. Convert each song to WAV with [Audacity](https://www.audacityteam.org/) (free).**
+1. Open the downloaded MP3 or FLAC in Audacity (File → Open).
+2. Choose **File → Export Audio...**
+3. Set **Format: WAV (Microsoft)**, **Channels: Stereo**, **Sample Rate: 44100 Hz** and **Encoding: Signed 16-bit PCM**.
+4. Name the file exactly as in the table above, for example `Spring.wav`, and click Export.
+
+If you're comfortable with the command line, ffmpeg does the same thing:
 
 ```
-ffmpeg -i song.flac -ar 44100 -ac 2 -c:a pcm_s16le Spring.wav
+ffmpeg -i "Spring.flac" -ar 44100 -ac 2 -c:a pcm_s16le Spring.wav
 ```
+
+**3. Put the WAV files in `BepInEx\plugins\OliveTownQoL\Music\`**, inside the game folder, and start the game.
+
+**The file names matter.** The mod only looks for `Spring.wav`, `Summer.wav`, `Fall.wav`, `Winter.wav`, `Town.wav` and `Evening.wav`. A file with any other name is ignored, and that spot plays the game's music. To use different names, set them in the settings file under `[MyMusic]`.
+
+**So does the format.** Files must be 44100 Hz, 16-bit, stereo WAV. If a file is in another format (48000 Hz and 24-bit are common defaults), the mod plays the game's music there instead. A message at the top of the screen names the file so you know which one to re-export.
 
 Set `[MyMusic] Enabled = false` to keep the game's music everywhere.
 

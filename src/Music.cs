@@ -242,13 +242,52 @@ namespace OliveTownQoL
             {
                 _songsCheckedAt = Time.unscaledTime;
                 _anySongs = false;
-                foreach (var n in Names) { var p = P(n); if (p != null && File.Exists(p)) { _anySongs = true; break; } }
+                foreach (var n in Names) { var p = P(n); if (p != null && File.Exists(p) && FormatOk(p)) { _anySongs = true; break; } }
             }
             return _anySongs;
         }
 
         // A song that isn't there falls back to the game's own music.
-        static string Song(string file) { var p = P(file); return p != null && File.Exists(p) ? p : GameMusic; }
+        static string Song(string file) { var p = P(file); return p != null && File.Exists(p) && FormatOk(p) ? p : GameMusic; }
+
+        // Only 16-bit 44.1 kHz stereo PCM plays correctly; anything else falls back to the game's music.
+        static readonly System.Collections.Generic.Dictionary<string, (DateTime when, bool ok)> _fmt = new();
+        static bool FormatOk(string path)
+        {
+            DateTime mt; try { mt = File.GetLastWriteTimeUtc(path); } catch { return false; }
+            if (_fmt.TryGetValue(path, out var c) && c.when == mt) return c.ok;
+            bool ok = false; string why = "not a WAV file";
+            try
+            {
+                using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var br = new BinaryReader(fs);
+                if (new string(br.ReadChars(4)) == "RIFF")
+                {
+                    br.ReadUInt32();
+                    if (new string(br.ReadChars(4)) == "WAVE")
+                        while (fs.Position + 8 <= fs.Length)
+                        {
+                            var id = new string(br.ReadChars(4)); uint len = br.ReadUInt32();
+                            if (id == "fmt ")
+                            {
+                                ushort tag = br.ReadUInt16(), ch = br.ReadUInt16(); uint rate = br.ReadUInt32(); br.ReadUInt32(); br.ReadUInt16(); ushort bits = br.ReadUInt16();
+                                ok = (tag == 1 || tag == 0xFFFE) && ch == 2 && rate == 44100 && bits == 16;
+                                why = $"{rate} Hz, {bits}-bit, {ch} channel(s)";
+                                break;
+                            }
+                            fs.Position += len + (len & 1);
+                        }
+                }
+            }
+            catch (Exception e) { why = e.Message; }
+            _fmt[path] = (mt, ok);
+            if (!ok)
+            {
+                Plugin.L.LogWarning($"Music: {Path.GetFileName(path)} is {why}; it must be a 44100 Hz, 16-bit, stereo WAV. Playing the game's music instead.");
+                Toast.Show($"{Path.GetFileName(path)}: wrong format, using game music", 5f);
+            }
+            return ok;
+        }
 
         static string Desired()
         {
